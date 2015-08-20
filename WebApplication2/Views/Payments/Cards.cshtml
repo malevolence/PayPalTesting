@@ -1,0 +1,124 @@
+﻿@model PayPal.Api.CreditCardList
+@{
+    ViewBag.Title = "Stored Cards";
+}
+
+@section head {
+	<style>
+		.table>tbody>tr>td { vertical-align: middle; }
+	</style>
+}
+
+@if (Model != null && Model.items != null && Model.items.Count > 0) {
+	<div class="alert alert-info">Found @Model.total_items stored cards.</div>
+	<table class="table table-condensed table-bordered table-striped small">
+		<thead>
+			<tr>
+				<th class="text-center">Actions</th>
+				<th>Name</th>
+				<th>Number</th>
+				<th class="text-center">Expire Date</th>
+				<th class="text-center">Type</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var card in Model.items) {
+			<tr>
+				<td class="text-center row-actions">
+					<div class="btn-group btn-group-sm">
+						<a href="@Url.Action("DetailsCard", new { id = card.id })" class="btn btn-default"><span class="glyphicon glyphicon-eye-open"></span></a>
+						<a href="@Url.Action("DeleteCard", new { id = card.id })" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>
+					</div>
+				</td>
+				<td>@card.first_name @card.last_name</td>
+				<td>@card.number</td>
+				<td class="text-center">@card.expire_month / @card.expire_year</td>
+				<td class="text-center">@card.type</td>
+			</tr>
+			}
+		</tbody>
+	</table>
+} else {
+	<div class="alert alert-info">No stored cards found.</div>
+}
+
+
+<form method="post" action="@Url.Action("SaveCard")">
+	<fieldset>
+		<legend>Save Card</legend>
+		<div class="form-group">
+			<label>Name</label>
+			<div class="row">
+				<div class="col-sm-6">
+					<input type="text" name="first_name" placeholder="First Name" class="form-control" />
+				</div>
+				<div class="col-sm-6">
+					<input type="text" name="last_name" placeholder="Last Name" class="form-control" />
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<label>Credit Card Number</label>
+			<div class="row">
+				<div class="col-sm-10">
+					<input type="text" name="number" placeholder="Credit Card Number" class="form-control" />
+				</div>
+				<div class="col-sm-2">
+					<input type="text" name="cvv2" placeholder="CVV2" class="form-control" />
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="required">Expiration Date</label>
+			<div class="row">
+				<div class="col-sm-6">
+					<select class="form-control"name="expire_month">
+						<option value="">-- Select Month --</option>
+						<option value="1">1 - January</option>
+						<option value="2">2 - February</option>
+						<option value="3">3 - March</option>
+						<option value="4">4 - April</option>
+						<option value="5">5 - May</option>
+						<option value="6">6 - June</option>
+						<option value="7">7 - July</option>
+						<option value="8">8 - August</option>
+						<option value="9">9 - September</option>
+						<option value="10">10 - October</option>
+						<option value="11">11 - November</option>
+						<option value="12">12 - December</option>
+					</select>
+				</div>
+				<div class="col-sm-6">
+					<select class="form-control" name="expire_year">
+						<option value="">-- Select Year --</option>
+						<option value="2015">2015</option>
+						<option value="2016">2016</option>
+						<option value="2017">2017</option>
+						<option value="2018">2018</option>
+						<option value="2019">2019</option>
+						<option value="2020">2020</option>
+						<option value="2021">2021</option>
+						<option value="2022">2022</option>
+						<option value="2023">2023</option>
+						<option value="2024">2024</option>
+					</select>
+				</div>
+			</div>
+		</div>
+	</fieldset>
+	<button type="submit" class="btn btn-default">Save Card</button>
+</form>
+
+<form id="utility-form" method="post"></form>
+
+@section scripts {
+	<script>
+		$(function () {
+			$('.row-actions').on('click', '.btn-danger', function (e) {
+				e.preventDefault();
+				var url = $(this).prop('href');
+				$('#utility-form').prop('action', url).get(0).submit();
+			});
+		});
+	</script>
+}

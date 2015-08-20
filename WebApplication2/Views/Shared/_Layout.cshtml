@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Paypal Testing</title>
+    @Styles.Render("~/Content/css")
+	@RenderSection("head", false)
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				@Html.ActionLink("Paypal Testing", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+			</div>
+			<div class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<li>@Html.ActionLink("Payments", "Index", "Payments")</li>
+					<li>@Html.ActionLink("Stored Cards", "Cards", "Payments")</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="container body-content">
+		<div class="page-header">
+			<h1>@ViewBag.Title</h1>
+		</div>
+
+		@if (TempData.ContainsKey("success")) {
+			<div class="alert alert-success alert-dismissible fade in">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				@Html.Raw(TempData["success"])
+			</div>
+		}
+
+		@if (TempData.ContainsKey("error")) {
+			<div class="alert alert-danger alert-dismissible fade in">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				@Html.Raw(TempData["error"])
+			</div>
+		}
+
+		@if (TempData.ContainsKey("info")) {
+			<div class="alert alert-info alert-dismissible fade in">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				@Html.Raw(TempData["info"])
+			</div>
+		}
+
+		@RenderBody()
+		<hr />
+		<footer>
+			<p class="text-center">&copy; @DateTime.Now.Year - Paypal Testing</p>
+		</footer>
+	</div>
+
+	@Scripts.Render("~/bundles/jquery")
+	@Scripts.Render("~/bundles/bootstrap")
+	@RenderSection("scripts", required: false)
+</body>
+</html>
