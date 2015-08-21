@@ -54,11 +54,11 @@
 				<div class="col-sm-9">
 					@foreach (var card in cardList.items) {
 					<div class="radio">
-						<label><input type="radio" name="CreditCardId" value="@card.id" /> @card.type @card.number @card.expire_month / @card.expire_year - @card.first_name @card.last_name</label>
+						<label><input type="radio" name="CreditCardId" value="@card.id" /> <span class="label label-default">@card.type</span> @card.number exp. @card.expire_month / @card.expire_year - @card.first_name @card.last_name</label>
 					</div>
 					}
 					<div class="radio">
-						<label><input type="radio" name="CreditCardId" value="" /> Use New Card</label>
+						<label><input type="radio" name="CreditCardId" value="" /> Use new card</label>
 					</div>
 				</div>
 			</div>

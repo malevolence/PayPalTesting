@@ -126,9 +126,11 @@
     <Compile Include="Controllers\CardsController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PaymentsController.cs" />
+    <Compile Include="Controllers\PlansController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\BillingPlan.cs" />
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\PurchaseInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -185,6 +187,8 @@
     <Content Include="Views\Cards\Details.cshtml" />
     <Content Include="Views\Cards\Edit.cshtml" />
     <Content Include="Views\Cards\Create.cshtml" />
+    <Content Include="Views\Plans\Index.cshtml" />
+    <Content Include="Views\Plans\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

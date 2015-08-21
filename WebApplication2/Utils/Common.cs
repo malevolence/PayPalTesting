@@ -74,7 +74,7 @@ namespace WebApplication2.Utils
 						response = "Visa";
 					else if (cardNumber.Substring(0, 2) == "34" || cardNumber.Substring(0, 2) == "37")
 						response = "Amex";
-					else if (cardNumber.Substring(0, 4) == "6011")
+					else if (cardNumber.Substring(0, 4) == "6011" || cardNumber.Substring(0, 3) == "622" || cardNumber.Substring(0, 2) == "64" || cardNumber.Substring(0, 2) == "65")
 						response = "Discover";
 				}
 
