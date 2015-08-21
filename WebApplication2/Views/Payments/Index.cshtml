@@ -1,4 +1,35 @@
-﻿@{
+﻿@model PayPal.Api.PaymentHistory
+
+@{
     ViewBag.Title = "Index";
 }
 
+@if (Model != null) {
+	<div class="alert alert-info">Showing @Model.count payments.</div>
+	<table class="table table-condensed table-bordered table-striped table-hover small">
+		<thead>
+			<tr>
+				<th class="text-center">Id</th>
+				<th class="text-center">Type</th>
+				<th class="text-center">Status</th>
+				<th class="text-center"># of Transactions</th>
+				<th class="text-center">Date</th>
+			</tr>
+		</thead>
+		<tbody>
+		@foreach (var payment in Model.payments) {
+			<tr>
+				<td class="text-center">@payment.id</td>
+				<td class="text-center">@payment.intent</td>
+				<td class="text-center">@payment.state</td>
+				<td class="text-center">@payment.transactions.Count</td>
+				<td class="text-center">@payment.create_time</td>
+			</tr>
+		}
+		</tbody>
+	</table>
+} else {
+	<div class="alert alert-info">No payment history found.</div>
+}
+
+<p><a href="@Url.Action("Create")" class="btn btn-default">Charge a credit card</a></p>

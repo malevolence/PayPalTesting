@@ -12,70 +12,29 @@ namespace WebApplication2.Controllers
 {
     public class PaymentsController : Controller
     {
-		private const string customerId = "malevolence";
+		private string customerId = "";
+
+		public PaymentsController()
+		{
+			this.customerId = Common.GetCustomerId();
+		}
 
         // GET: Payments
         public ActionResult Index()
         {
-            return View();
+			var apiContext = Common.GetApiContext();
+
+			var payments = Payment.List(apiContext);
+
+            return View(payments);
         }
-
-		public ActionResult Cards()
-		{
-			var config = ConfigManager.Instance.GetProperties();
-			var accessToken = new OAuthTokenCredential(config).GetAccessToken();
-			var apiContext = new APIContext(accessToken);
-
-			var cards = CreditCard.List(apiContext, externalCustomerId: customerId);
-
-			return View(cards);
-		}
-
-		public ActionResult DetailsCard(string id)
-		{
-			var config = ConfigManager.Instance.GetProperties();
-			var accessToken = new OAuthTokenCredential(config).GetAccessToken();
-			var apiContext = new APIContext(accessToken);
-
-			var creditCard = CreditCard.Get(apiContext, id);
-
-			return View(creditCard);
-		}
-
-		[HttpPost]
-		public ActionResult SaveCard(CreditCard creditCard)
-		{
-			var config = ConfigManager.Instance.GetProperties();
-			var accessToken = new OAuthTokenCredential(config).GetAccessToken();
-			var apiContext = new APIContext(accessToken);
-
-			creditCard.external_customer_id = customerId;
-			creditCard.type = "visa";
-			creditCard.Create(apiContext);
-
-			TempData["success"] = "Credit card stored successfully";
-
-			return RedirectToAction("Cards");
-		}
-
-		[HttpPost]
-		public ActionResult DeleteCard(string id)
-		{
-			var config = ConfigManager.Instance.GetProperties();
-			var accessToken = new OAuthTokenCredential(config).GetAccessToken();
-			var apiContext = new APIContext(accessToken);
-
-			var creditCard = CreditCard.Get(apiContext, id);
-
-			creditCard.Delete(apiContext);
-
-			TempData["success"] = "Credit card deleted successfully";
-
-			return RedirectToAction("Cards");
-		}
 
 		public ActionResult Create()
 		{
+			var apiContext = Common.GetApiContext();
+			var cards = CreditCard.List(apiContext, externalCustomerId: customerId);
+			ViewBag.Cards = cards;
+
 			AddPaymentDropdowns();
 			return View();
 		}
@@ -86,42 +45,56 @@ namespace WebApplication2.Controllers
 		{
 			try
 			{
-				var config = ConfigManager.Instance.GetProperties();
-				var accessToken = new OAuthTokenCredential(config).GetAccessToken();
-				var apiContext = new APIContext(accessToken);
+				var apiContext = Common.GetApiContext();
 
 				var payer = new Payer
 				{
 					payment_method = "credit_card",
-					funding_instruments = new List<FundingInstrument>()
-					{
-						new FundingInstrument()
-						{
-							credit_card = new CreditCard()
-							{
-								billing_address = new Address()
-								{
-									city = "Orlando",
-									country_code = "US",
-									line1 = "123 Test Way",
-									postal_code = "32803",
-									state = "FL"
-								},
-								cvv2 = purchaseInfo.CVV2,
-								expire_month = purchaseInfo.ExpMonth,
-								expire_year = purchaseInfo.ExpYear,
-								first_name = purchaseInfo.FirstName,
-								last_name = purchaseInfo.LastName,
-								number = purchaseInfo.CreditCardNumber,
-								type = "visa"
-							}
-						}
-					},
+					funding_instruments = new List<FundingInstrument>(),
 					payer_info = new PayerInfo
 					{
 						email = "email@example.com"
 					}
 				};
+
+				var creditCard = new CreditCard();
+
+				if (!string.IsNullOrEmpty(purchaseInfo.CreditCardId))
+				{
+					payer.funding_instruments.Add(new FundingInstrument()
+					{
+						credit_card_token = new CreditCardToken()
+						{
+							credit_card_id = purchaseInfo.CreditCardId
+						}
+					});
+				}
+				else
+				{
+					creditCard = new CreditCard()
+					{
+						billing_address = new Address()
+						{
+							city = "Orlando",
+							country_code = "US",
+							line1 = "123 Test Way",
+							postal_code = "32803",
+							state = "FL"
+						},
+						cvv2 = purchaseInfo.CVV2,
+						expire_month = purchaseInfo.ExpMonth,
+						expire_year = purchaseInfo.ExpYear,
+						first_name = purchaseInfo.FirstName,
+						last_name = purchaseInfo.LastName,
+						number = purchaseInfo.CreditCardNumber,
+						type = Common.GetCardType(purchaseInfo.CreditCardNumber)
+					};
+
+					payer.funding_instruments.Add(new FundingInstrument()
+					{
+						credit_card = creditCard
+					});
+				}
 
 				var transaction = new Transaction
 				{
@@ -142,6 +115,12 @@ namespace WebApplication2.Controllers
 				};
 
 				var createdPayment = payment.Create(apiContext);
+
+				if (purchaseInfo.SavePaymentInfo)
+				{
+					creditCard.external_customer_id = customerId;
+					creditCard.Create(apiContext);
+				}
 
 				TempData["info"] = createdPayment.id;
 

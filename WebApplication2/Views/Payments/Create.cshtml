@@ -2,6 +2,7 @@
 
 @{
     ViewBag.Title = "Make a Purchase";
+	var cardList = (PayPal.Api.CreditCardList)ViewBag.Cards;
 }
 
 @Html.ValidationSummary()
@@ -46,33 +47,52 @@
 		</div>
 	</fieldset>
 	<fieldset>
-		<legend>Payment Details</legend>
-		<div class="form-group">
-			@Html.LabelFor(x => x.FirstName, new { @class = "control-label col-sm-3" })
-			<div class="col-sm-9">
-				@Html.TextBoxFor(x => x.FirstName, new { @class = "form-control" })
-				@Html.ValidationMessageFor(x => x.FirstName)
+		<legend>Payment Method</legend>
+		@if (cardList != null && cardList.items != null && cardList.items.Count > 0) {
+			<div class="form-group">
+				<label class="control-label col-sm-3">Stored Cards</label>
+				<div class="col-sm-9">
+					@foreach (var card in cardList.items) {
+					<div class="radio">
+						<label><input type="radio" name="CreditCardId" value="@card.id" /> @card.type @card.number @card.expire_month / @card.expire_year - @card.first_name @card.last_name</label>
+					</div>
+					}
+					<div class="radio">
+						<label><input type="radio" name="CreditCardId" value="" /> Use New Card</label>
+					</div>
+				</div>
 			</div>
-		</div>
+		} else {
+			<input type="hidden" name="CreditCardId" value="" />
+		}
 		<div class="form-group">
-			@Html.LabelFor(x => x.LastName, new { @class = "control-label col-sm-3" })
+			<label class="control-label col-sm-3">Name</label>
 			<div class="col-sm-9">
-				@Html.TextBoxFor(x => x.LastName, new { @class = "form-control" })
-				@Html.ValidationMessageFor(x => x.LastName)
+				<div class="row">
+					<div class="col-sm-6">
+						@Html.TextBoxFor(x => x.FirstName, new { @class = "form-control", placeholder = "First Name" })
+						@Html.ValidationMessageFor(x => x.FirstName)
+					</div>
+					<div class="col-sm-6">
+						@Html.TextBoxFor(x => x.LastName, new { @class = "form-control", placeholder = "Last Name" })
+						@Html.ValidationMessageFor(x => x.LastName)
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="form-group">
 			@Html.LabelFor(x => x.CreditCardNumber, new { @class = "control-label col-sm-3" })
 			<div class="col-sm-9">
-				@Html.TextBoxFor(x => x.CreditCardNumber, new { @class = "form-control" })
-				@Html.ValidationMessageFor(x => x.CreditCardNumber)
-			</div>
-		</div>
-		<div class="form-group">
-			@Html.LabelFor(x => x.CVV2, new { @class = "control-label col-sm-3" })
-			<div class="col-sm-9">
-				@Html.TextBoxFor(x => x.CVV2, new { @class = "form-control" })
-				@Html.ValidationMessageFor(x => x.CVV2)
+				<div class="row">
+					<div class="col-sm-10">
+						@Html.TextBoxFor(x => x.CreditCardNumber, new { @class = "form-control", placeholder = "Credit Card Number" })
+						@Html.ValidationMessageFor(x => x.CreditCardNumber)
+					</div>
+					<div class="col-sm-2">
+						@Html.TextBoxFor(x => x.CVV2, new { @class = "form-control", placeholder = "CVV2" })
+						@Html.ValidationMessageFor(x => x.CVV2)
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="form-group">
@@ -98,7 +118,9 @@
 			</div>
 		</div>
 	</fieldset>
-	<div class="col-sm-offset-3 col-sm-9"><button type="submit" class="btn btn-primary">Make Purchase</button></div>
+	<div class="form-group">
+		<div class="col-sm-offset-3 col-sm-9"><button type="submit" class="btn btn-primary">Make Purchase</button></div>
+	</div>
 </form>
 
 @section scripts {
@@ -107,6 +129,16 @@
 			$('input[name=IsRecurring]').on('change', function (e) {
 				var isRecurring = $(this).val().toLowerCase() == 'true' ? true : false;
 				$('#BillingPeriod,#NumberOfCycles').prop('disabled', !isRecurring).val('');
+			});
+
+			$('input[name=CreditCardId').on('change', function (e) {
+				var creditCardId = $(this).val();
+
+				if (creditCardId == '') {
+					$('#ExpMonth,#ExpYear,#SavePaymentInfo,#CreditCardNumber,#CVV2,#FirstName,#LastName').prop('disabled', false);
+				} else {
+					$('#ExpMonth,#ExpYear,#SavePaymentInfo,#CreditCardNumber,#CVV2,#FirstName,#LastName').prop('disabled', true).val('');
+				}
 			});
 		});
 	</script>

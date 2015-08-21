@@ -1,0 +1,66 @@
+﻿@model PayPal.Api.CreditCardList
+@{
+    ViewBag.Title = "Stored Cards";
+}
+
+@section head {
+	<style>
+		.table>tbody>tr>td { vertical-align: middle; }
+	</style>
+}
+
+@if (Model != null && Model.items != null && Model.items.Count > 0) {
+	<div class="alert alert-info">Found @Model.total_items stored cards.</div>
+	<table class="table table-condensed table-bordered table-striped table-hover small">
+		<thead>
+			<tr>
+				<th class="text-center" style="width: 150px;">Actions</th>
+				<th>Name</th>
+				<th class="text-center" style="width: 180px;">Number</th>
+				<th class="text-center" style="width: 120px;">Type</th>
+				<th class="text-center" style="width: 100px;">Expire Date</th>
+			</tr>
+		</thead>
+		<tfoot>
+			<tr>
+				<td class="text-center"><a href="@Url.Action("Create")" class="btn btn-default btn-block">Add another card</a></td>
+				<td colspan="4">&nbsp;</td>
+			</tr>
+		</tfoot>
+		<tbody>
+			@foreach (var card in Model.items) {
+			<tr>
+				<td class="text-center row-actions">
+					<div class="btn-group btn-group-sm">
+						<a href="@Url.Action("Details", new { id = card.id })" class="btn btn-default"><span class="glyphicon glyphicon-eye-open"></span></a>
+						<a href="@Url.Action("Edit", new { id = card.id })" class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span></a>
+						<a href="@Url.Action("Delete", new { id = card.id })" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>
+					</div>
+				</td>
+				<td>@card.first_name @card.last_name</td>
+				<td class="text-center">@card.number</td>
+				<td class="text-center">@card.type</td>
+				<td class="text-center">@card.expire_month / @card.expire_year</td>
+			</tr>
+			}
+		</tbody>
+	</table>
+} else {
+	<div class="alert alert-info">No stored cards found. You can <a href="@Url.Action("Create")">add one here</a>.</div>
+}
+
+<form id="utility-form" method="post"></form>
+
+@section scripts {
+	<script>
+		$(function () {
+			$('.row-actions').on('click', '.btn-danger', function (e) {
+				e.preventDefault();
+				if (confirm('Are you sure you want to delete this stored payment method? This action cannot be undone.')) {
+					var url = $(this).prop('href');
+					$('#utility-form').prop('action', url).get(0).submit();
+				}
+			});
+		});
+	</script>
+}

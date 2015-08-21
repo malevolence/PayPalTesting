@@ -1,0 +1,62 @@
+﻿@model PayPal.Api.CreditCard
+@{
+    ViewBag.Title = "Add a Saved Card";
+}
+
+@Html.ValidationSummary()
+
+<form method="post" action="@Url.Action("Create")" class="form-horizontal">
+	<fieldset>
+		<legend>Save Card</legend>
+		<div class="form-group">
+			<label class="control-label col-sm-3">Name</label>
+			<div class="col-sm-9">
+				<div class="row">
+					<div class="col-sm-6">
+						@Html.TextBoxFor(x => x.first_name, new { @class = "form-control", placeholder = "First Name" })
+						@Html.ValidationMessageFor(x => x.first_name)
+					</div>
+					<div class="col-sm-6">
+						@Html.TextBoxFor(x => x.last_name, new { @class = "form-control", placeholder = "Last Name" })
+						@Html.ValidationMessageFor(x => x.last_name)
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-sm-3">Credit Card Number</label>
+			<div class="col-sm-9">
+				<div class="row">
+					<div class="col-sm-10">
+						@Html.TextBoxFor(x => x.number, new { @class = "form-control", placeholder = "Credit Card Number" })
+						@Html.ValidationMessageFor(x => x.number)
+					</div>
+					<div class="col-sm-2">
+						@Html.TextBoxFor(x => x.cvv2, new { @class = "form-control", placeholder = "CVV2" })
+						@Html.ValidationMessageFor(x => x.cvv2)
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label col-sm-3">Expiration Date</label>
+			<div class="col-sm-9">
+				<div class="row">
+					<div class="col-sm-6">
+						@Html.DropDownListFor(x => x.expire_month, (IEnumerable<SelectListItem>)ViewBag.PossibleMonths, "-- Select Month --", new { @class = "form-control" })
+						@Html.ValidationMessageFor(x => x.expire_month)
+					</div>
+					<div class="col-sm-6">
+						@Html.DropDownListFor(x => x.expire_year, (IEnumerable<SelectListItem>)ViewBag.PossibleYears, "-- Select Year --", new { @class = "form-control" })
+						@Html.ValidationMessageFor(x => x.expire_year)
+					</div>
+				</div>
+			</div>
+		</div>
+	</fieldset>
+	<div class="form-group">
+		<div class="col-sm-9 col-sm-offset-3">
+			<button type="submit" class="btn btn-primary">Save Card</button>
+		</div>
+	</div>
+</form>

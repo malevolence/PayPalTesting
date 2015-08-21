@@ -20,6 +20,9 @@ namespace WebApplication2.Models
 		[Display(Name = "Number of Cycles")]
 		public int? NumberOfCycles { get; set; }
 
+		[Display(Name = "Saved Credit Card")]
+		public string CreditCardId { get; set; }
+
 		[Display(Name = "Save Payment Info")]
 		public bool SavePaymentInfo { get; set; }
 
