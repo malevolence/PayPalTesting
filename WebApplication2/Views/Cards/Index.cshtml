@@ -3,12 +3,6 @@
     ViewBag.Title = "Stored Cards";
 }
 
-@section head {
-	<style>
-		.table>tbody>tr>td { vertical-align: middle; }
-	</style>
-}
-
 @if (Model != null && Model.items != null && Model.items.Count > 0) {
 	<div class="alert alert-info">Found @Model.total_items stored cards.</div>
 	<table class="table table-condensed table-bordered table-striped table-hover small">

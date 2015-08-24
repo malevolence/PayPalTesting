@@ -15,7 +15,7 @@ namespace WebApplication2.Controllers
         {
 			var apiContext = Common.GetApiContext();
 
-			var plans = Plan.List(apiContext);
+			var plans = Plan.List(apiContext, status: "ACTIVE", pageSize: "20");
 
 			return View(plans);
         }
@@ -49,10 +49,12 @@ namespace WebApplication2.Controllers
 				plan.payment_definitions = new List<PaymentDefinition>();
 
 				var paymentDefinition = new PaymentDefinition();
+				paymentDefinition.name = "Standard Plan";
 				paymentDefinition.amount = new Currency { currency = "USD", value = billingPlan.Amount.ToString() };
 				paymentDefinition.frequency = billingPlan.Frequency.ToString();
 				paymentDefinition.type = "REGULAR";
 				paymentDefinition.frequency_interval = "1";
+
 				if (billingPlan.NumberOfCycles.HasValue)
 				{
 					paymentDefinition.cycles = billingPlan.NumberOfCycles.Value.ToString();
@@ -60,13 +62,70 @@ namespace WebApplication2.Controllers
 
 				plan.payment_definitions.Add(paymentDefinition);
 
-				plan.Create(apiContext);
+				var created = plan.Create(apiContext);
+
+				if (created.state == "CREATED")
+				{
+					var patchRequest = new PatchRequest();
+					patchRequest.Add(new Patch { path = "/", op = "replace", value = new Plan() { state = "ACTIVE" } });
+					created.Update(apiContext, patchRequest);
+				}
+
 				TempData["success"] = "Billing plan created.";
 				return RedirectToAction("Index");
 			}
 
 			AddDropdowns();
 			return View(billingPlan);
+		}
+
+		public ActionResult Details(string id)
+		{
+			var apiContext = Common.GetApiContext();
+
+			var plan = Plan.Get(apiContext, id);
+
+			return View(plan);
+		}
+
+		[HttpPost]
+		public ActionResult Activate(string id)
+		{
+			if (!string.IsNullOrEmpty(id))
+			{
+				var apiContext = Common.GetApiContext();
+				var plan = Plan.Get(apiContext, id);
+				if (plan != null && plan.state == "CREATED")
+				{
+					var patchRequest = new PatchRequest();
+					var tempPlan = new Plan();
+					tempPlan.state = "ACTIVE";
+					patchRequest.Add(new Patch { path = "/", op = "replace", value = tempPlan });
+					plan.Update(apiContext, patchRequest);
+
+					TempData["success"] = "Plan activated";
+				}
+			}
+
+			return RedirectToAction("Index");
+		}
+
+		[HttpPost]
+		public ActionResult Delete(string id)
+		{
+			if (!string.IsNullOrEmpty(id))
+			{
+				var apiContext = Common.GetApiContext();
+				var plan = Plan.Get(apiContext, id);
+
+				if (plan != null)
+				{
+					plan.Delete(apiContext);
+					TempData["success"] = "Plan deleted";
+				}
+			}
+
+			return RedirectToAction("Index");
 		}
 
 		private void AddDropdowns()

@@ -8,27 +8,50 @@
 	<table class="table table-condensed table-bordered table-striped table-hover small">
 		<thead>
 			<tr>
+				<th class="text-center">Actions</th>
 				<th class="text-center">Id</th>
 				<th>Name</th>
 				<th class="text-center">Status</th>
+				<th class="text-center">Date</th>
 			</tr>
 		</thead>
 		<tfoot>
 			<tr>
-				<td><a href="@Url.Action("Create")" class="btn btn-default btn-block">Add New Plan</a></td>
-				<td colspan="2">&nbsp;</td>
+				<td><a href="@Url.Action("Create")" class="btn btn-default btn-block btn-sm">Add New Plan</a></td>
+				<td colspan="4">&nbsp;</td>
 			</tr>
 		</tfoot>
 		<tbody>
 			@foreach (var plan in Model.plans) {
 				<tr>
+					<td class="text-center">
+						<div class="btn-group btn-group-sm">
+							<a href="@Url.Action("Details", new { id = plan.id })" class="btn btn-default"><span class="glyphicon glyphicon-eye-open"></span></a>
+							<a href="@Url.Action("Delete", new { id = plan.id })" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></a>
+						</div>
+					</td>
 					<td class="text-center">@plan.id</td>
 					<td>@plan.name</td>
 					<td class="text-center">@plan.state</td>
+					<td class="text-center">@plan.create_time</td>
 				</tr>
 			}
 		</tbody>
 	</table>
 } else {
 	<div class="alert alert-info">There are no stored billing plans. You can <a href="@Url.Action("Create")">add one here</a>.</div>
+}
+
+<form method="post" class="hidden" id="utility-form"></form>
+
+@section scripts {
+	<script>
+		$(function () {
+			$('.table tbody .btn-group').on('click', '.btn-danger', function (e) {
+				e.preventDefault();
+				var url = $(this).prop('href');
+				$('#utility-form').prop('action', url).get(0).submit();
+			});
+		});
+	</script>
 }

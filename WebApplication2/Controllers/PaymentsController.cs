@@ -13,17 +13,19 @@ namespace WebApplication2.Controllers
     public class PaymentsController : Controller
     {
 		private string customerId = "";
+		private PlanList plans;
+		private APIContext apiContext;
 
 		public PaymentsController()
 		{
+			this.apiContext = Common.GetApiContext();
 			this.customerId = Common.GetCustomerId();
+			this.plans = Plan.List(apiContext, status: "ACTIVE");
 		}
 
         // GET: Payments
         public ActionResult Index()
         {
-			var apiContext = Common.GetApiContext();
-
 			var payments = Payment.List(apiContext);
 
             return View(payments);
@@ -31,9 +33,8 @@ namespace WebApplication2.Controllers
 
 		public ActionResult Create()
 		{
-			var apiContext = Common.GetApiContext();
-			var cards = CreditCard.List(apiContext, externalCustomerId: customerId);
-			ViewBag.Cards = cards;
+			ViewBag.Cards = CreditCard.List(apiContext, externalCustomerId: customerId);
+			ViewBag.Plans = plans;
 
 			AddPaymentDropdowns();
 			return View();
@@ -45,7 +46,7 @@ namespace WebApplication2.Controllers
 		{
 			try
 			{
-				var apiContext = Common.GetApiContext();
+				string action = "Index";
 
 				var payer = new Payer
 				{
@@ -96,25 +97,55 @@ namespace WebApplication2.Controllers
 					});
 				}
 
-				var transaction = new Transaction
+				if (!purchaseInfo.IsRecurring)
 				{
-					amount = new Amount
+					var transaction = new Transaction
 					{
-						currency = "USD",
-						total = purchaseInfo.Amount.ToString()
-					},
-					description = "Featured Profile on ProductionHUB",
-					invoice_number = Common.GetRandomInvoiceNumber()
-				};
+						amount = new Amount
+						{
+							currency = "USD",
+							total = purchaseInfo.Amount.ToString()
+						},
+						description = "Featured Profile on ProductionHUB",
+						invoice_number = Common.GetRandomInvoiceNumber()
+					};
 
-				var payment = new Payment()
+					var payment = new Payment()
+					{
+						intent = "sale",
+						payer = payer,
+						transactions = new List<Transaction>() { transaction }
+					};
+
+					var createdPayment = payment.Create(apiContext);
+					TempData["info"] = createdPayment.id;
+
+					if (createdPayment.state == "approved")
+					{
+						action = "Completed";
+					}
+					else
+					{
+						action = "Rejected";
+					}
+				}
+				else
 				{
-					intent = "sale",
-					payer = payer,
-					transactions = new List<Transaction>() { transaction }
-				};
+					var agreement = new Agreement()
+					{
+						name = "Basic profile",
+						description = "Monthly basic profile in perpetuity",
+						payer = payer,
+						plan = new Plan { id = purchaseInfo.BillingPlanId },
+						start_date = DateTime.UtcNow.AddDays(1).ToString("u").Replace(" ", "T"),
+					};
 
-				var createdPayment = payment.Create(apiContext);
+					var createdAgreement = agreement.Create(apiContext);
+
+					TempData["info"] = createdAgreement.create_time;
+
+					TempData["success"] = "Recurring agreement created";
+				}
 
 				if (purchaseInfo.SavePaymentInfo)
 				{
@@ -122,22 +153,16 @@ namespace WebApplication2.Controllers
 					creditCard.Create(apiContext);
 				}
 
-				TempData["info"] = createdPayment.id;
+				return RedirectToAction(action);
 
-				if (createdPayment.state == "approved")
-				{
-					return RedirectToAction("Completed");
-				}
-				else
-				{
-					return RedirectToAction("Rejected");
-				}
 			}
 			catch (Exception exc)
 			{
 				TempData["error"] = exc.Message;
 			}
 
+			ViewBag.Cards = CreditCard.List(apiContext, externalCustomerId: customerId);
+			ViewBag.Plans = plans;
 			AddPaymentDropdowns();
 			return View();
 		}

@@ -3,6 +3,8 @@
 @{
     ViewBag.Title = "Make a Purchase";
 	var cardList = (PayPal.Api.CreditCardList)ViewBag.Cards;
+	var planList = (PayPal.Api.PlanList)ViewBag.Plans;
+	var plans = planList.plans;
 }
 
 @Html.ValidationSummary()
@@ -32,17 +34,13 @@
 			</div>
 		</div>
 		<div class="form-group">
-			@Html.LabelFor(x => x.BillingPeriod, new { @class = "control-label col-sm-3" })
+			@Html.LabelFor(x => x.BillingPlanId, new { @class = "control-label col-sm-3" })
 			<div class="col-sm-9">
-				@Html.EnumDropDownListFor(x => x.BillingPeriod, new { @class = "form-control" })
-				@Html.ValidationMessageFor(x => x.BillingPeriod)
-			</div>
-		</div>
-		<div class="form-group">
-			@Html.LabelFor(x => x.NumberOfCycles, new { @class = "control-label col-sm-3" })
-			<div class="col-sm-9">
-				@Html.TextBoxFor(x => x.NumberOfCycles, new { @class = "form-control" })
-				@Html.ValidationMessageFor(x => x.NumberOfCycles)
+				@foreach (var plan in plans) {
+					<div class="radio">
+						<label><input type="radio" name="BillingPlanId" value="@plan.id" /> @plan.name</label>
+					</div>
+				}
 			</div>
 		</div>
 	</fieldset>
@@ -128,7 +126,7 @@
 		$(function () {
 			$('input[name=IsRecurring]').on('change', function (e) {
 				var isRecurring = $(this).val().toLowerCase() == 'true' ? true : false;
-				$('#BillingPeriod,#NumberOfCycles').prop('disabled', !isRecurring).val('');
+				$('input[name=BillingPlanId]').prop('checked', false).prop('disabled', !isRecurring).val('');
 			});
 
 			$('input[name=CreditCardId').on('change', function (e) {

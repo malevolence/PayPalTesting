@@ -1,0 +1,71 @@
+﻿@model PayPal.Api.Plan
+@{
+    ViewBag.Title = "Billing Plan Details";
+}
+
+<form class="form-horizontal">
+	<div class="form-group">
+		<label class="control-label col-sm-3">Id</label>
+		<div class="col-sm-9">
+			<p class="form-control-static">@Model.id</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label col-sm-3">Created On</label>
+		<div class="col-sm-9">
+			<p class="form-control-static">@Model.create_time</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label col-sm-3">Name</label>
+		<div class="col-sm-9">
+			<p class="form-control-static">@Model.name</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label col-sm-3">Description</label>
+		<div class="col-sm-9">
+			<p class="form-control-static">@Model.description</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label col-sm-3">Type</label>
+		<div class="col-sm-9">
+			<p class="form-control-static">@Model.type</p>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label col-sm-3">Status</label>
+		<div class="col-sm-9">
+			<p class="form-control-static">@Model.state</p>
+		</div>
+	</div>
+</form>
+
+@if (Model.payment_definitions.Count > 0) {
+	<div class="alert alert-info">@Model.payment_definitions.Count payment definitions found.</div>
+	<table class="table table-condensed table-striped table-hover table-bordered small">
+		<thead>
+			<tr>
+				<th>Id</th>
+				<th>Name</th>
+				<th class="text-center">Type</th>
+				<th class="text-center">Frequency</th>
+				<th class="text-right">Amount</th>
+			</tr>
+		</thead>
+		<tbody>
+		@foreach (var pd in Model.payment_definitions) {
+			<tr>
+				<td>@pd.id</td>
+				<td>@pd.name</td>
+				<td class="text-center">@pd.type</td>
+				<td class="text-center">@pd.frequency</td>
+				<td class="text-right">@pd.amount.value</td>
+			</tr>
+		}
+		</tbody>
+	</table>
+} else {
+	<div class="alert alert-info">No payment definitions found.</div>
+}

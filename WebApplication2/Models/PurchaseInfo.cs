@@ -9,10 +9,13 @@ namespace WebApplication2.Models
 	public class PurchaseInfo
 	{
 		[DataType(DataType.Currency)]
-		public decimal Amount { get; set; }
+		public decimal? Amount { get; set; }
 
 		[Display(Name = "Is Recurring?")]
 		public bool IsRecurring { get; set; }
+
+		[Display(Name = "Billing Plan")]
+		public string BillingPlanId { get; set; }
 
 		[Display(Name = "Billing Period")]
 		public BillingPeriod? BillingPeriod { get; set; }
